@@ -8,22 +8,34 @@ const options = {
     username: 'Nokillme' // Nombre de tu bot
 };
 
-const client = createClient(options);
+let client;
 
-client.on('join', () => {
-    console.log('Bot joined the game!');
-});
+function connect() {
+    client = createClient(options);
 
-client.on('text', (packet) => {
-    if (packet.type === 'chat') {
-        console.log(`[${packet.source_name}]: ${packet.message}`);
-    }
-});
+    client.on('join', () => {
+        console.log('Bot joined the game!');
+    });
 
-client.on('disconnect', (packet) => {
-    console.log('Bot disconnected:', packet);
-});
+    client.on('text', (packet) => {
+        if (packet.type === 'chat') {
+            console.log(`[${packet.source_name}]: ${packet.message}`);
+        }
+    });
 
-client.on('error', (err) => {
-    console.error('Error:', err);
-});
+    client.on('disconnect', (packet) => {
+        console.log('Bot disconnected:', packet);
+        console.log('Reconnecting in 10 seconds...');
+        setTimeout(connect, 10000); // Reconecta después de 10 segundos
+    });
+
+    client.on('error', (err) => {
+        console.error('Error:', err);
+        console.log('Reconnecting in 10 seconds...');
+        setTimeout(connect, 10000); // Reconecta después de 10 segundos en caso de error
+    });
+}
+
+// Iniciar la conexión por primera vez
+connect();
+
